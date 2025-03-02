@@ -1,4 +1,3 @@
-// src/components/ImageDetail.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -7,15 +6,13 @@ function ImageDetail() {
   const { id } = useParams();
   const [image, setImage] = useState(null);
   const accessKey = import.meta.env.VITE_ACCESS_KEY;
-  const secretKey = import.meta.env.VITE_SECRET_KEY;
 
   useEffect(() => {
     const fetchImageDetail = async () => {
       try {
-        const response = await axios.get(`/api/images/${id}`, {
+        const response = await axios.get(`https://api.unsplash.com/photos/${id}`, {
           headers: {
-            'X-Access-Key': accessKey,
-            'X-Secret-Key': secretKey,
+            Authorization: `Client-ID ${accessKey}`,
           },
         });
         setImage(response.data);
@@ -25,24 +22,65 @@ function ImageDetail() {
     };
 
     fetchImageDetail();
-  }, [id, accessKey, secretKey]);
+  }, [id, accessKey]);
 
   if (!image) {
-    return <div>Loading...</div>;
+    return <div className="loading-spinner">Loading...</div>;
   }
 
   return (
     <div className="detail-container">
       <div className="detail-image-section">
-        <img src={image.imageUrl} alt={image.description} className="detail-image" />
+        <img 
+          src={image.urls.regular} 
+          alt={image.alt_description || image.description} 
+          className="detail-image"
+          loading="eager"
+        />
       </div>
       <div className="detail-info-section">
-        <h2>{image.uploaderName} ({image.uploaderUsername})</h2>
-        <p><strong>Upload Date:</strong> {new Date(image.uploadDate).toLocaleString()}</p>
-        <p><strong>Description:</strong> {image.description}</p>
-        <p><strong>Dimensions:</strong> {image.width} x {image.height}</p>
-        <button className="download-btn">Download</button>
-        <Link className="back-link" to="/">Back to Gallery</Link>
+        <div className="author-info">
+          <img 
+            src={image.user.profile_image.medium} 
+            alt={image.user.name} 
+            className="author-avatar"
+          />
+          <div>
+            <h2>{image.user.name}</h2>
+            <a 
+              href={`https://unsplash.com/@${image.user.username}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="username-link"
+            >
+              @{image.user.username}
+            </a>
+          </div>
+        </div>
+        
+        <div className="meta-info">
+          <p><strong>Uploaded:</strong> {new Date(image.created_at).toLocaleDateString()}</p>
+          <p><strong>Dimensions:</strong> {image.width}px × {image.height}px</p>
+          <p><strong>Downloads:</strong> {image.downloads.toLocaleString()}</p>
+        </div>
+
+        <p className="image-description">
+          {image.description || image.alt_description || 'No description available'}
+        </p>
+
+        <div className="action-buttons">
+          <a 
+            href={image.links.download} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="download-btn"
+          >
+            Download Free
+          </a>
+          <Link to="/" className="back-link">
+            ← Back to Gallery
+          </Link>
+        </div>
       </div>
     </div>
   );

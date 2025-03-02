@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Gallery from './components/Gallery';
 import ImageDetail from './components/ImageDetail';
 
@@ -7,7 +7,6 @@ function App() {
   return (
     <Router>
       <div className="app-container">
-        {/* Header / Navbar */}
         <header className="header">
           <div className="logo">GeekGallery</div>
           <div className="search-bar">
@@ -15,14 +14,12 @@ function App() {
             <button>Search</button>
           </div>
         </header>
-
-        <Routes>
-          {/* Main Gallery View */}
-          <Route path="/" element={<Gallery />} />
-          {/* Detail View */}
-          <Route path="/image/:id" element={<ImageDetail />} />
+      <Routes>
+        <Route path="/" element={<Gallery />} />
+        <Route path="/images/:id" element={<ImageDetail />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </div>
+        </div>
     </Router>
   );
 }
